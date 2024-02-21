@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private lateinit var ed1: EditText
     private lateinit var ed2: EditText
 
-    var currencies = arrayOf<String?>("USD", "EUR")
+    var currencies = arrayOf<String?>("USD", "EUR", "GBP")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,9 +114,9 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     private fun converUSDToOther(usd: Double, secondCurrency: String): Double {
         return usd * when (secondCurrency){
-            "EUR" -> 0.92
             "USD" -> 1.0
-            //"Pound" -> 0.86
+            "EUR" -> 0.92
+            "GBP" -> 0.79
 
             else -> 0.0
         }
@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         return amt * when (firstCurrency){
             "USD" -> 1.0
             "EUR" -> 0.92
-            //"Pound" -> 0.79
+            "GBP" -> 0.79
 
             else -> 0.0
         }
