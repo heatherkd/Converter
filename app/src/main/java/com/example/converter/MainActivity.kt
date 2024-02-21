@@ -1,60 +1,130 @@
 package com.example.converter
 
-import android.net.Uri.Builder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
-import java.text.DecimalFormat
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.EditText
+import android.widget.Spinner
+import android.widget.Toast
+import androidx.core.widget.doOnTextChanged
 
-class MainActivity : AppCompatActivity() {
-    /*private lateinit var binding: ActivityMainBinding
-    private lateinit var selectedUnit:String
+class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
+
+    private lateinit var spinner1: Spinner
+    private lateinit var spinner2: Spinner
+    private lateinit var ed1: EditText
+    private lateinit var ed2: EditText
+
+    var currencies = arrayOf<String?>("USD", "Euro", "Pound")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding= AppCompatActivity(layoutInflater)
-        setContentView(binding.root)
-        val df = DecimalFormat("#.##")
-        selectedUnit = "Fahrenheit"
-        binding.selectType.setOnClickListener(){
-            showAlertDialog()
+        setContentView(R.layout.activity_main)
+
+        spinner1=findViewById(R.id.topSpinner)
+        spinner2=findViewById(R.id.bottomSpinner)
+        ed1=findViewById(R.id.edTop)
+        ed2=findViewById(R.id.edBottom)
+
+        spinner1.onItemSelectedListener = this
+        spinner2.onItemSelectedListener = this
+
+        val ad: ArrayAdapter<*> = ArrayAdapter<Any?>(
+            this,
+            android.R.layout.simple_spinner_item,
+            currencies)
+
+        val ad2: ArrayAdapter<*> = ArrayAdapter<Any?>(
+            this,
+            android.R.layout.simple_spinner_item,
+            currencies)
+
+        ad.setDropDownViewResource(
+            android.R.layout.simple_spinner_dropdown_item)
+
+        ad.setDropDownViewResource(
+            android.R.layout.simple_spinner_dropdown_item)
+
+        spinner1.adapter=ad
+        spinner2.adapter=ad2
+
+        ed1.doOnTextChanged { text, start, before, count ->
+            val amt = if (ed1.text.isEmpty())0.0 else ed1.text.toString().toDouble()
+            val convertedCurrency = convertCurrency(amt,
+                spinner1.selectedItem.toString(),
+                spinner2.selectedItem.toString())
+            ed2.setText(convertedCurrency.toString())
         }
 
-        binding.editInput.addTextChangedListener(){
-            val resultText:String
-            var inputVal = binding.editInput.text.toString()
-            if (inputVal.isNotEmpty()){
-                var doubleInput = inputVal.toDouble()
-                if (selectedUnit == "Fahrenheit"){
-                    resultText = df.format((doubleInput-32)*5/9)
-                    binding.textResultType.text = "Celsius"
-                }else{
-                    resultText=df.format((doubleInput*9/5)+32)
-                    binding.textResultType.text="Fahrenheit"
-                }
-                binding.textResultType.text=resultText
+        /*ed2.doOnTextChanged { text, start, before, count ->
+            val amt = if (ed2.text.isEmpty())0.0 else ed2.text.toString().toDouble()
+            val convertedCurrency = convertCurrency(amt,
+                spinner2.selectedItem.toString(),
+                spinner1.selectedItem.toString())
+            ed1.setText(convertedCurrency.toString())
+        }*/
+
+        }
+
+    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        when (parent!!.id){
+            R.id.topSpinner -> {
+                val amt = if (ed1.text.isEmpty())0.0 else ed1.text.toString().toDouble()
+                val convertedCurrency = convertCurrency(
+                    amt,
+                    spinner1.selectedItem.toString(),
+                    spinner2.selectedItem.toString())
+                ed2.setText(convertedCurrency.toString())
+            }
+
+            R.id.bottomSpinner -> {
+                val amt = if (ed2.text.isEmpty())0.0 else ed2.text.toString().toDouble()
+                val convertedCurrency = convertCurrency(
+                    amt,
+                    spinner2.selectedItem.toString(),
+                    spinner1.selectedItem.toString())
+                ed1.setText(convertedCurrency.toString())
             }
         }
+        /*Toast.makeText(applicationContext,
+            currencies[position],
+            Toast.LENGTH_LONG)
+            .show()*/
     }
 
-    private fun showAlertDialog() {
-        val alertDialog:Builder = Builder(this@MainActivity)
-        alertDialog.setTitle("Select Unit")
-        val items = arrayOf("Fahrenheit", "Celsius")
-        val checkedItem = -1
-        alertDialog.setSingleChoiceItems(items, checkedItem,
-            DialogInterface.OnClickListener { dialog, which ->
-                selectedUnit = items[which]
-                binding.textType.setText(items[which])
-            })
-        alertDialog.setPositiveButton(
-            android.R.string.ok,
-            DialogInterface.OnClickListener { dialog, which ->
-                dialog.dismiss()
-            })
-        val alert: AlertDialog = alertDialog.create()
-        alert.setCanceledOnTouchOutside(false)
-        alert.show()
-    }*/
+    override fun onNothingSelected(parent: AdapterView<*>?) {
+        TODO("Not yet implemented")
+    }
+
+    fun convertCurrency(amt: Double, firstCurrency: String, secondCurrency: String): Double {
+        val usd = convertOtherToUSD(amt, firstCurrency)
+        return converUSDToOther(usd, secondCurrency)
+
+    }
+
+    private fun converUSDToOther(usd: Double, secondCurrency: String): Double {
+        return usd + when (secondCurrency){
+            "USD" -> 1.0
+            "Euro" -> 1.0
+            "Pound" -> 1.0
+
+            else -> 0.0
+        }
+
+    }
+
+    private fun convertOtherToUSD(amt: Double, firstCurrency: String): Double {
+        return amt + when (firstCurrency){
+            "USD" -> 1.0
+            "Euro" -> 0.92
+            "Pound" -> 0.79
+
+            else -> 0.0
+        }
+
+
+    }
 
 }
