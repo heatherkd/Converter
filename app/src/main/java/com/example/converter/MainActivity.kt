@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private lateinit var ed1: EditText
     private lateinit var ed2: EditText
 
-    var currencies = arrayOf<String?>("USD", "Euro", "Pound")
+    var currencies = arrayOf<String?>("USD", "EUR")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,20 +51,28 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         spinner2.adapter=ad2
 
         ed1.doOnTextChanged { text, start, before, count ->
-            val amt = if (ed1.text.isEmpty())0.0 else ed1.text.toString().toDouble()
-            val convertedCurrency = convertCurrency(amt,
-                spinner1.selectedItem.toString(),
-                spinner2.selectedItem.toString())
-            ed2.setText(convertedCurrency.toString())
+            if (ed1.isFocused) {
+                val amt = if (ed1.text.isEmpty()) 0.0 else ed1.text.toString().toDouble()
+                val convertedCurrency = convertCurrency(
+                    amt,
+                    spinner1.selectedItem.toString(),
+                    spinner2.selectedItem.toString()
+                )
+                ed2.setText(convertedCurrency.toString())
+            }
         }
 
-        /*ed2.doOnTextChanged { text, start, before, count ->
-            val amt = if (ed2.text.isEmpty())0.0 else ed2.text.toString().toDouble()
-            val convertedCurrency = convertCurrency(amt,
-                spinner2.selectedItem.toString(),
-                spinner1.selectedItem.toString())
-            ed1.setText(convertedCurrency.toString())
-        }*/
+        ed2.doOnTextChanged { text, start, before, count ->
+            if (ed2.isFocused) {
+                val amt = if (ed2.text.isEmpty()) 0.0 else ed2.text.toString().toDouble()
+                val convertedCurrency = convertCurrency(
+                    amt,
+                    spinner2.selectedItem.toString(),
+                    spinner1.selectedItem.toString()
+                )
+                ed1.setText(convertedCurrency.toString())
+            }
+        }
 
         }
 
@@ -105,10 +113,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun converUSDToOther(usd: Double, secondCurrency: String): Double {
-        return usd + when (secondCurrency){
+        return usd * when (secondCurrency){
+            "EUR" -> 0.92
             "USD" -> 1.0
-            "Euro" -> 1.0
-            "Pound" -> 1.0
+            //"Pound" -> 0.86
 
             else -> 0.0
         }
@@ -116,10 +124,10 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun convertOtherToUSD(amt: Double, firstCurrency: String): Double {
-        return amt + when (firstCurrency){
+        return amt * when (firstCurrency){
             "USD" -> 1.0
-            "Euro" -> 0.92
-            "Pound" -> 0.79
+            "EUR" -> 0.92
+            //"Pound" -> 0.79
 
             else -> 0.0
         }
